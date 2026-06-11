@@ -15,22 +15,22 @@
     {% endblock %}
 </head>
 
-<body data-theme="{{ config.tema_visual|default:'claro' }}" class="min-h-screen w-full overflow-x-hidden md:flex">
+<body data-theme="{{ config.tema_visual|default:'claro' }}" class="app-layout">
 
     <!-- BOTÓN MENÚ MÓVIL -->
         <button id="mobileMenuBtn"
                 type="button"
-                class="md:hidden fixed top-4 left-4 z-[70] bg-slate-900 text-white px-4 py-2 rounded-xl shadow-lg">
+                class="mobile-menu-btn">
             ☰
         </button>
 
         <!-- FONDO OSCURO MÓVIL -->
-        <div id="sidebarOverlay"
-            class="hidden fixed inset-0 bg-black/50 z-40 md:hidden">
+        <div id="sidebarOverlay" 
+            class="sidebar-overlay">
         </div>
 
     <!-- SIDEBAR -->
-    <aside id="sidebar" class="sidebar fixed md:static inset-y-0 left-0 z-50 w-64 text-white flex flex-col justify-between shadow-xl transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+    <aside id="sidebar" class="sidebar app-sidebar text-white flex flex-col justify-between shadow-xl">
 
         <div>
             <div class="p-6 text-center border-b border-slate-700">
@@ -117,7 +117,7 @@
     </aside>
 
     <!-- MAIN CONTENT -->
-    <main class="min-h-screen md:h-screen flex-1 flex flex-col w-full min-w-0 overflow-y-auto pt-16 md:pt-0">
+    <main class="app-main">
 
         {% if messages %}
             <div class="fixed top-5 right-5 space-y-2 z-50">
