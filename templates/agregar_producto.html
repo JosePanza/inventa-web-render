@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<header class="theme-card shadow-sm px-8 py-4 flex justify-between items-center">
+    <h2 class="text-xl font-bold theme-title">Agregar producto</h2>
+</header>
+
+<div class="p-8 overflow-y-auto">
+    <div class="max-w-3xl mx-auto theme-card rounded-2xl shadow-sm border p-8">
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-2 gap-6">
+                
+                <div>
+                <label class="block text-sm font-medium theme-label mb-2">Nombre</label>
+                <input type="text" name="nombre" required
+                       class="theme-input w-full rounded-xl border px-4 py-2 outline-none focus:ring-2">
+            </div>
+
+                <div>
+                    <label class="block text-sm font-medium theme-label mb-2">Categoría</label>
+                    <select name="categoria" class="theme-input w-full border rounded-xl px-4 py-2" required>
+                        <option value="">Seleccione una categoría</option>
+                        <option value="fruta">Frutas</option>
+                        <option value="verdura">Verduras</option>
+                        <option value="abarrote">Abarrotes</option>
+                        <option value="bebida">Bebidas</option>
+                        <option value="limpieza">Limpieza</option>
+                        <option value="lacteo">Lácteos</option>
+                        <option value="panaderia">Panadería</option>
+                        <option value="otros">Otros</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium theme-label mb-2">Descripción</label>
+                <textarea name="descripcion" rows="4"
+                          class="theme-input w-full rounded-xl border px-4 py-2 outline-none focus:ring-2"></textarea>
+            </div>
+
+
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium theme-label mb-1">Precio Venta (Público)</label>
+                    <input type="number" name="precio_venta" required min="1" placeholder="Ej: 1500"
+                        class="theme-input w-full p-2 border rounded-lg focus:ring-2 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium theme-label mb-1">Precio Costo (Proveedor)</label>
+                    <input type="number" name="precio_costo" required min="1" placeholder="Ej: 1000"
+                        class="theme-input w-full p-2 border rounded-lg focus:ring-2 outline-none">
+                </div>
+                
+
+                <div>
+                    <label class="block text-sm font-medium theme-label mb-2">Tipo de venta</label>
+                    <select name="tipo_venta"
+                            class="theme-input w-full rounded-xl border px-4 py-2 outline-none focus:ring-2">
+                        <option value="unidad">Por unidad</option>
+                        <option value="peso">Por peso / kg</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium theme-label mb-2">Stock</label>
+                    <input type="number"
+                        name="stock"
+                        required
+                        step="0.001"
+                        min="0"
+                        placeholder="Ej: 10 o 2.500"
+                        class="theme-input w-full rounded-xl border px-4 py-2 outline-none focus:ring-2">
+                </div>
+
+            </div>
+
+
+
+
+            <div class="grid grid-cols-2 gap-6">
+
+                <div>
+                    <label class="block text-sm font-medium theme-label mb-2">Imagen</label>
+                    <input type="file" name="imagen"
+                        class="theme-input w-full rounded-xl border px-4 py-2 outline-none focus:ring-2">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+                <a href="{% url 'inventario' %}" class="theme-btn-secondary px-5 py-2 rounded-xl border">
+                    Cancelar
+                </a>
+
+                <button type="submit" class="theme-btn-primary px-5 py-2 rounded-xl">
+                    Guardar producto
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

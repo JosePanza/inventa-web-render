@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+
+<header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
+    <h2 class="text-xl font-bold text-gray-800">Catálogo de productos</h2>
+
+    <form method="GET" action="{% url 'inventario' %}" class="flex items-center gap-2">
+
+        <input
+            type="text"
+            name="buscar"
+            value="{{ buscar }}"
+            placeholder="Buscar productos..."
+            class="w-72 bg-gray-100 border-none rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+
+        <select
+            name="categoria"
+            class="bg-gray-100 border-none rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+
+            <option value="">Todas las categorías</option>
+
+            {% for valor, nombre in categorias_producto %}
+                <option value="{{ valor }}"
+                    {% if categoria_seleccionada == valor %}selected{% endif %}>
+                    {{ nombre }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit"
+            class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700">
+            Filtrar
+        </button>
+
+        <a href="{% url 'inventario' %}"
+        class="bg-gray-500 text-white px-4 py-2 rounded-xl text-sm hover:bg-gray-600">
+            Limpiar
+        </a>
+
+    </form>
+</header>
+
+<div class="p-8 overflow-y-auto">
+
+    <a href="{% url 'agregar_producto' %}"
+       class="bg-green-600 text-white px-3 py-2 rounded-xl text-sm hover:bg-green-700">
+        + Agregar Producto
+    </a>
+    <div id="panel-editar" class="hidden bg-white rounded-2xl shadow-sm border p-6 mt-6">
+    <div class="flex justify-between items-center mb-4">
+        <h4 class="font-bold text-gray-800 text-lg">Editar producto</h4>
+        <button type="button" onclick="cerrarEditor()" class="text-gray-500 hover:text-gray-700">
+            ✖
+        </button>
+    </div>
+
+    <form id="form-editar" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+    <div class="grid grid-cols-2 gap-6">
+
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Nombre</label>
+            <input id="edit-nombre" type="text" name="nombre"
+                class="w-full border rounded-xl px-4 py-2" required>
+        </div>
+
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Categoría</label>
+            <select id="edit-categoria" name="categoria"
+                    class="w-full border rounded-xl px-4 py-2" required>
+
+                {% for valor, nombre in categorias_producto %}
+                    <option value="{{ valor }}">{{ nombre }}</option>
+                {% endfor %}
+
+            </select>
+        </div>
+
+        <div class="col-span-2">
+            <label class="block text-sm text-gray-600 mb-1">Descripción</label>
+            <textarea id="edit-descripcion" name="descripcion" rows="4"
+                    class="w-full border rounded-xl px-4 py-2"></textarea>
+        </div>
+
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Precio venta</label>
+            <input id="edit-precio_venta" type="number" step="0.01" name="precio_venta"
+                class="w-full border rounded-xl px-4 py-2" required>
+        </div>
+
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Precio costo</label>
+            <input id="edit-precio_costo" type="number" step="0.01" name="precio_costo"
+                class="w-full border rounded-xl px-4 py-2" required>
+        </div>
+
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Tipo de venta</label>
+            <select id="edit-tipo_venta" name="tipo_venta"
+                    class="w-full border rounded-xl px-4 py-2" required>
+                <option value="unidad">Por unidad</option>
+                <option value="peso">Por peso / kg</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Stock</label>
+            <input id="edit-stock" type="number" step="0.001" min="0" name="stock"
+                class="w-full border rounded-xl px-4 py-2" required>
+        </div>
+
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Nueva imagen</label>
+            <input type="file" name="imagen"
+                class="w-full border rounded-xl px-4 py-2 bg-white">
+        </div>
+
+    </div>
+
+        <div class="flex justify-end gap-3 mt-6">
+            <button type="button" onclick="cerrarEditor()" class="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100">
+                Cancelar
+            </button>
+            <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+                Guardar cambios
+            </button>
+        </div>
+    </form>
+</div>
+
+    <div class="bg-white rounded-2xl shadow-sm border overflow-hidden mt-6">
+
+        <div class="p-6 border-b">
+            <h4 class="font-bold text-gray-800">Lista de Productos</h4>
+        </div>
+
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-gray-600">
+                <tr>
+                    <th class="text-left p-4">Código</th>
+                    <th class="text-left p-4">Nombre del producto</th>
+                    <th class="text-left p-4">Imagen</th>
+                    <th class="text-left p-4">Categoría</th>
+                    <th class="text-left p-4">Descripción</th>
+                    <th class="text-left p-4">Precio Venta</th>
+                    <th class="text-left p-4">Precio Costo</th>
+                    <th class="text-left p-4">Stock</th>
+                    <th class="text-left p-4">Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+    {% for producto in productos %}
+    <tr class="producto-row border-t hover:bg-white transition-colors">
+
+        <!-- CÓDIGO -->
+        <td class="p-4 text-gray-700 font-semibold">
+            {{ producto.codigo }}
+        </td>
+
+        <!-- NOMBRE -->
+        <td class="p-4 font-semibold text-gray-800">
+            {{ producto.nombre }}
+        </td>
+
+        <!-- IMAGEN -->
+        <td class="p-4">
+            {% if producto.imagen %}
+                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}"
+                     class="w-12 h-12 rounded-lg object-cover">
+            {% else %}
+                <div class="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                    Sin img
+                </div>
+            {% endif %}
+        </td>
+
+        <!-- CATEGORÍA -->
+        <td class="p-4 text-gray-500">
+            {{ producto.get_categoria_display }}
+        </td>
+
+        <!-- DESCRIPCIÓN -->
+        <td class="p-4 text-gray-500">
+            {{ producto.descripcion }}
+        </td>
+
+        <!-- PRECIO VENTA-->
+        <td class="p-4 text-gray-800">
+            ${{ producto.precio_venta }}
+        </td>
+
+        <!-- PRECIO COSTO -->
+        <td class="p-4 text-gray-800">
+            ${{ producto.precio_costo }}
+        </td>
+
+        <!-- STOCK -->
+        <td class="p-4">
+
+            {% if producto.stock == 0 %}
+
+                <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap">
+                    Sin Stock
+                </span>
+
+            {% elif producto.stock <= limite_stock %}
+
+                <span class="bg-red-100 text-red-600 px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap">
+
+                    {% if producto.tipo_venta == 'peso' %}
+                        Stock Crítico: {{ producto.stock|floatformat:1 }} kg
+                    {% else %}
+                        Stock Crítico: {{ producto.stock|floatformat:0 }} un
+                    {% endif %}
+
+                </span>
+
+            {% else %}
+
+                <span class="bg-green-100 text-green-600 px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap">
+
+                    {% if producto.tipo_venta == 'peso' %}
+                        En Stock: {{ producto.stock|floatformat:1 }} kg
+                    {% else %}
+                        En Stock: {{ producto.stock|floatformat:0 }} un
+                    {% endif %}
+
+                </span>
+
+            {% endif %}
+
+        </td>
+
+
+        <!-- ACCIONES -->
+        <td class="p-4">
+            <div class="flex items-center gap-3">
+
+                <!-- EDITAR -->
+                <button type="button"
+                    onclick="abrirEditor(
+                        '{{ producto.id }}',
+                        '{{ producto.nombre|escapejs }}',
+                        '{{ producto.categoria|escapejs }}',
+                        '{{ producto.descripcion|escapejs }}',
+                        '{{ producto.tipo_venta }}',
+                        '{{ producto.precio_venta }}',
+                        '{{ producto.precio_costo }}',
+                        '{{ producto.stock }}',
+                    )"
+                    class="text-blue-600 hover:text-blue-800 text-sm font-semibold">
+                    ✏️
+                </button>
+
+                <!-- ELIMINAR -->
+                <form method="POST" action="{% url 'eliminar_producto' producto.id %}"
+                    >
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="text-red-600 hover:text-red-800 text-sm font-semibold">
+                        🗑️
+                    </button>
+                </form>
+
+            </div>
+        </td>
+
+    </tr>
+
+    {% empty %}
+    <tr>
+        <td colspan="9" class="p-6 text-center text-gray-400">
+            No hay productos registrados
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/Productos.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/productos.js' %}"></script>
+{% endblock %}

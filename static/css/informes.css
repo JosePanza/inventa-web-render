@@ -1,0 +1,40 @@
+.informes-page {
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+    min-height: 100vh;
+}
+
+.informes-page .informe-card {
+    background-color: var(--color-tarjeta) !important;
+    border-color: var(--color-borde) !important;
+}
+
+.informes-page .resumen-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.informes-page .resumen-grid div {
+    background-color: var(--color-suave);
+    border: 1px solid var(--color-borde);
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.informes-page table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.informes-page th,
+.informes-page td {
+    border: 1px solid var(--color-borde);
+    padding: 10px;
+}
+
+.informes-page th {
+    background-color: var(--color-suave);
+}

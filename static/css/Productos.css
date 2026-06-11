@@ -1,0 +1,3 @@
+.producto-row:hover td:not(:last-child) {
+    color: #111827 !important;
+}

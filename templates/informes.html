@@ -1,0 +1,795 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/informes.css' %}">
+{% endblock %}
+
+{% block body %}
+
+<header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
+    <h2 class="text-xl font-bold text-gray-800">Informes de ventas</h2>
+
+    <button type="button"
+            onclick="abrirModalInforme()"
+            class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-green-700">
+        🖨️ Preparar informe
+    </button>
+</header>
+
+<!-- MODAL PREPARAR INFORME -->
+<div id="modal-informe"
+     class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl p-6">
+
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-gray-800">
+                Preparar informe
+            </h3>
+
+            <button type="button"
+                    onclick="cerrarModalInforme()"
+                    class="text-gray-500 hover:text-gray-700 text-xl">
+                ✖
+            </button>
+        </div>
+
+        <form method="GET" action="{% url 'informes' %}" class="space-y-4">
+
+            <input type="hidden" name="preview" value="1">
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Tipo de informe
+                </label>
+
+                <select name="tipo_informe"
+                        id="tipo-informe"
+                        onchange="cambiarTipoInforme()"
+                        class="w-full border rounded-xl px-4 py-2">
+
+                    <option value="diario" {% if tipo_informe == 'diario' %}selected{% endif %}>
+                        Informe diario
+                    </option>
+
+                    <option value="rango" {% if tipo_informe == 'rango' %}selected{% endif %}>
+                        Informe por rango de fechas
+                    </option>
+
+                    <option value="productos" {% if tipo_informe == 'productos' %}selected{% endif %}>
+                        Informe por productos
+                    </option>
+
+                </select>
+            </div>
+
+            <div id="campo-dia">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Día del informe
+                </label>
+
+                <input type="date"
+                       name="fecha_dia"
+                       value="{{ fecha_dia }}"
+                       class="w-full border rounded-xl px-4 py-2">
+            </div>
+
+            <div id="campo-rango" class="grid grid-cols-2 gap-4 hidden">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Desde
+                    </label>
+
+                    <input type="date"
+                           name="fecha_inicio"
+                           value="{{ fecha_inicio }}"
+                           class="w-full border rounded-xl px-4 py-2">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Hasta
+                    </label>
+
+                    <input type="date"
+                           name="fecha_fin"
+                           value="{{ fecha_fin }}"
+                           class="w-full border rounded-xl px-4 py-2">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Medio de pago
+                </label>
+
+                <select name="medio_pago" class="w-full border rounded-xl px-4 py-2">
+                    <option value="">Todos</option>
+                    <option value="efectivo" {% if medio_pago == 'efectivo' %}selected{% endif %}>Efectivo</option>
+                    <option value="debito" {% if medio_pago == 'debito' %}selected{% endif %}>Débito</option>
+                    <option value="credito" {% if medio_pago == 'credito' %}selected{% endif %}>Crédito</option>
+                    <option value="transferencia" {% if medio_pago == 'transferencia' %}selected{% endif %}>Transferencia</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Buscar producto o boleta
+                </label>
+
+                <input type="text"
+                       name="buscar"
+                       value="{{ buscar }}"
+                       placeholder="Ej: tomate o 12"
+                       class="w-full border rounded-xl px-4 py-2">
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+                <button type="button"
+                        onclick="cerrarModalInforme()"
+                        class="px-4 py-2 rounded-xl border text-gray-700 hover:bg-gray-100">
+                    Cancelar
+                </button>
+
+                <button type="submit"
+                        class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+                    Generar vista previa
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- VISTA PREVIA DEL INFORME ARRIBA -->
+{% if mostrar_preview %}
+<div id="vista-previa-informe" class="p-8 pb-0">
+
+    <div class="bg-white rounded-2xl shadow-sm border p-6">
+
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h3 class="text-xl font-bold text-gray-800">
+                    Vista previa del informe
+                </h3>
+
+                <p class="text-sm text-gray-500">
+                    Revisa esto antes de imprimir.
+                </p>
+            </div>
+
+            <button type="button"
+                    onclick="imprimirInformeMes()"
+                    class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-green-700">
+                🖨️ Imprimir vista previa
+            </button>
+        </div>
+
+        <div id="contenido-informe-mes">
+
+            <div class="resumen-grid">
+                <div>
+                    <span>Tipo de informe</span>
+                    <strong>{{ titulo_informe }}</strong>
+                </div>
+
+                <div>
+                    <span>Periodo</span>
+                    <strong>{{ fecha_inicio }} al {{ fecha_fin }}</strong>
+                </div>
+
+                <div>
+                    <span>Total ventas</span>
+                    <strong>{{ cantidad_ventas }}</strong>
+                </div>
+
+                <div>
+                    <span>IVA</span>
+                    <strong>${{ iva_mes|floatformat:0 }}</strong>
+                </div>
+
+                <div>
+                    <span>Total vendido</span>
+                    <strong>${{ total_mes|floatformat:0 }}</strong>
+                </div>
+            </div>
+
+            {% if tipo_informe == 'productos' %}
+
+                <h3>Informe por productos</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad vendida</th>
+                            <th>Total vendido</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for producto in productos_informe %}
+                        <tr>
+                            <td>{{ producto.producto__nombre }}</td>
+                            <td>{{ producto.total_cantidad|floatformat:3 }}</td>
+                            <td>${{ producto.total_vendido|floatformat:0 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3">No hay productos vendidos con estos filtros.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            {% else %}
+
+                <h3>Resumen por medio de pago</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Medio de pago</th>
+                            <th>Cantidad de ventas</th>
+                            <th>Total vendido</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>Efectivo</td>
+                            <td>{{ cantidad_efectivo }}</td>
+                            <td>${{ total_efectivo|floatformat:0 }}</td>
+                        </tr>
+
+                        <tr>
+                            <td>Débito</td>
+                            <td>{{ cantidad_debito }}</td>
+                            <td>${{ total_debito|floatformat:0 }}</td>
+                        </tr>
+
+                        <tr>
+                            <td>Crédito</td>
+                            <td>{{ cantidad_credito }}</td>
+                            <td>${{ total_credito|floatformat:0 }}</td>
+                        </tr>
+
+                        <tr>
+                            <td>Transferencia</td>
+                            <td>{{ cantidad_transferencia }}</td>
+                            <td>${{ total_transferencia|floatformat:0 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Detalle de boletas</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Boleta</th>
+                            <th>Fecha</th>
+                            <th>Medio de pago</th>
+                            <th>Subtotal</th>
+                            <th>IVA</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for venta in ventas %}
+                        <tr>
+                            <td>#{{ venta.id }}</td>
+                            <td>{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                            <td>{{ venta.get_medio_pago_display }}</td>
+                            <td>${{ venta.subtotal|floatformat:0 }}</td>
+                            <td>${{ venta.iva|floatformat:0 }}</td>
+                            <td>${{ venta.total|floatformat:0 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6">No hay ventas con estos filtros.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- CONTENIDO PRINCIPAL -->
+<div class="informes-page grid grid-cols-4 gap-6 p-8">
+
+    <!-- CONTENIDO CENTRAL -->
+    <div class="col-span-3 space-y-6">
+
+        <!-- RESUMEN -->
+        <div class="grid grid-cols-2 gap-6">
+            <div class="bg-white rounded-2xl shadow-sm border p-6">
+                <p class="text-sm text-gray-500">Ventas del mes</p>
+                <h3 class="text-3xl font-bold text-gray-900">{{ cantidad_ventas }}</h3>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border p-6">
+                <p class="text-sm text-gray-500">Total vendido</p>
+                <h3 class="text-3xl font-bold text-green-600">${{ total_mes }}</h3>
+            </div>
+        </div>
+
+        <!-- LISTA DE VENTAS -->
+        <div class="bg-white rounded-2xl shadow-sm border p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-6">Boletas del mes</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {% for venta in ventas %}
+                <button type="button"
+                        onclick="abrirDetalleVenta('venta-{{ venta.id }}')"
+                        class="text-left bg-gray-50 hover:bg-blue-50 border rounded-2xl p-4 transition">
+                    <h4 class="text-xl font-bold text-gray-900">${{ venta.total }}</h4>
+                    <p class="text-xs text-gray-400 mt-1">
+                        {{ venta.fecha|date:"d/m/Y H:i" }}
+                    </p>
+                    <p class="text-xs text-blue-600 mt-2">
+                        Ver detalle
+                    </p>
+                </button>
+                {% empty %}
+                <p class="text-gray-400">No hay ventas registradas.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FILTROS DERECHA -->
+    <aside class="bg-white rounded-2xl shadow-sm border p-6 h-fit">
+        <h3 class="text-lg font-bold text-gray-800 mb-6">Filtros</h3>
+
+        <form method="GET" action="{% url 'informes' %}" class="space-y-4">
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Buscar producto o boleta
+                </label>
+                <input type="text"
+                       name="buscar"
+                       value="{{ buscar }}"
+                       placeholder="Ej: tomate o 12"
+                       class="w-full border rounded-xl px-4 py-2">
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Medio de pago
+                </label>
+                <select name="medio_pago" class="w-full border rounded-xl px-4 py-2">
+                    <option value="">Todos</option>
+                    <option value="efectivo" {% if medio_pago == 'efectivo' %}selected{% endif %}>Efectivo</option>
+                    <option value="debito" {% if medio_pago == 'debito' %}selected{% endif %}>Débito</option>
+                    <option value="credito" {% if medio_pago == 'credito' %}selected{% endif %}>Crédito</option>
+                    <option value="transferencia" {% if medio_pago == 'transferencia' %}selected{% endif %}>Transferencia</option>
+                </select>
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700">
+                Filtrar
+            </button>
+
+            <a href="{% url 'informes' %}"
+               class="block text-center w-full border py-2 rounded-xl text-gray-600 hover:bg-gray-100">
+                Limpiar filtros
+            </a>
+        </form>
+    </aside>
+
+</div>
+
+<!-- MODALES DETALLE -->
+{% for venta in ventas %}
+<div id="venta-{{ venta.id }}"
+     class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6">
+
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-gray-800">
+                Detalle boleta 
+            </h3>
+            <div class="flex gap-2">
+
+                <button type="button"
+                        onclick="imprimirBoleta('contenido-venta-{{ venta.id }}')"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700">
+                    🖨️ Imprimir / PDF
+                </button>
+
+                <button type="button"
+                        onclick="cerrarDetalleVenta('venta-{{ venta.id }}')"
+                        class="text-gray-500 hover:text-gray-700 text-xl">
+                    ✖
+                </button>
+            </div>
+        </div>
+    
+        <div id="contenido-venta-{{ venta.id }}">
+
+            <div class="info-boleta grid grid-cols-2 gap-4 mb-6 text-sm">
+                <div>
+                    <p class="text-gray-500">Fecha</p>
+                    <p class="font-semibold">{{ venta.fecha|date:"d/m/Y H:i" }}</p>
+                </div>
+
+                <div>
+                    <p class="text-gray-500">Medio de pago</p>
+                    <p class="font-semibold">{{ venta.get_medio_pago_display }}</p>
+                </div>
+
+                <div>
+                    <p class="text-gray-500">Subtotal</p>
+                    <p class="font-semibold">${{ venta.subtotal|floatformat:0 }}</p>
+                </div>
+
+                <div>
+                    <p class="text-gray-500">IVA</p>
+                    <p class="font-semibold">${{ venta.iva|floatformat:0 }}</p>
+                </div>
+            </div>
+
+            <div class="tabla-boleta border rounded-2xl overflow-hidden shadow-sm mt-6">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 text-gray-600">
+                        <tr>
+                            <th class="text-left p-3">Producto</th>
+                            <th class="text-left p-3">Cantidad</th>
+                            <th class="text-left p-3">Precio</th>
+                            <th class="text-left p-3">Subtotal</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for detalle in venta.detalles.all %}
+                        <tr class="border-t">
+                            <td class="p-3 font-semibold">
+                                {{ detalle.producto.nombre }}
+                            </td>
+                            <td class="p-3">
+                                {{ detalle.cantidad|floatformat:0 }}
+                            </td>
+                            <td class="p-3">
+                                ${{ detalle.precio_unitario|floatformat:0 }}
+                            </td>
+                            <td class="p-3">
+                                ${{ detalle.subtotal|floatformat:0 }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="total-boleta">
+                <p>Total</p>
+                <strong>${{ venta.total|floatformat:0 }}</strong>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+function imprimirBoleta(idContenido) {
+    const contenido = document.getElementById(idContenido).innerHTML;
+
+    const ventana = window.open('', '_blank');
+
+    ventana.document.write(`
+        <html>
+        <head>
+            <title>Boleta</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    padding: 30px;
+                    color: #111827;
+                    background: #ffffff;
+                }
+
+                .boleta {
+                    max-width: 700px;
+                    margin: 0 auto;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 16px;
+                    padding: 28px;
+                }
+
+                .titulo {
+                    text-align: center;
+                    margin-bottom: 25px;
+                    border-bottom: 2px solid #111827;
+                    padding-bottom: 15px;
+                }
+
+                .titulo h1 {
+                    margin: 0;
+                    font-size: 24px;
+                    letter-spacing: 1px;
+                }
+
+                .titulo p {
+                    margin: 5px 0 0;
+                    font-size: 13px;
+                    color: #6b7280;
+                }
+
+                .info {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 12px;
+                    margin-bottom: 25px;
+                    font-size: 14px;
+                }
+
+                .info div {
+                    background: #f9fafb;
+                    padding: 12px;
+                    border-radius: 10px;
+                }
+
+                .info span {
+                    display: block;
+                    color: #6b7280;
+                    font-size: 12px;
+                    margin-bottom: 4px;
+                }
+
+                .info strong {
+                    font-size: 14px;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                    font-size: 14px;
+                }
+
+                th {
+                    background: #f3f4f6;
+                    text-align: left;
+                    padding: 12px;
+                    color: #374151;
+                }
+
+                td {
+                    border-bottom: 1px solid #e5e7eb;
+                    padding: 12px;
+                }
+
+                .resumen {
+                    margin-top: 25px;
+                    display: flex;
+                    justify-content: flex-end;
+                }
+
+                .resumen-box {
+                    width: 260px;
+                    background: #f9fafb;
+                    border-radius: 12px;
+                    padding: 16px;
+                }
+
+                .fila {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 10px;
+                    font-size: 14px;
+                }
+
+                .total {
+                    border-top: 1px solid #d1d5db;
+                    padding-top: 12px;
+                    margin-top: 12px;
+                    font-size: 22px;
+                    font-weight: bold;
+                }
+
+                .footer {
+                    text-align: center;
+                    margin-top: 30px;
+                    font-size: 12px;
+                    color: #6b7280;
+                }
+
+                @media print {
+                    body {
+                        padding: 0;
+                    }
+
+                    .boleta {
+                        border: none;
+                        border-radius: 0;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="boleta">
+                <div class="titulo">
+                    <h1>{{ config.nombre_empresa|default:"INVENTA WEB" }}</h1>
+                    <p>Comprobante de venta</p>
+                </div>
+
+                ${contenido}
+
+                <div class="footer">
+                    Gracias por su compra
+                </div>
+            </div>
+        </body>
+        </html>
+    `);
+
+    ventana.document.close();
+
+    ventana.onload = function () {
+        ventana.focus();
+        ventana.print();
+        ventana.close();
+    };
+}
+
+function imprimirInformeMes() {
+    const contenido = document.getElementById('contenido-informe-mes').innerHTML;
+
+    const ventana = window.open('', '_blank');
+
+    ventana.document.write(`
+        <html>
+        <head>
+            <title>Informe mensual</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    padding: 30px;
+                    color: #111827;
+                    background: #ffffff;
+                }
+
+                .informe {
+                    max-width: 900px;
+                    margin: 0 auto;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 16px;
+                    padding: 28px;
+                }
+
+                .titulo {
+                    text-align: center;
+                    margin-bottom: 25px;
+                    border-bottom: 2px solid #111827;
+                    padding-bottom: 15px;
+                }
+
+                .titulo h1 {
+                    margin: 0;
+                    font-size: 24px;
+                    letter-spacing: 1px;
+                }
+
+                .titulo p {
+                    margin: 5px 0 0;
+                    font-size: 13px;
+                    color: #6b7280;
+                }
+
+                .resumen-grid {
+                    display: grid;
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 12px;
+                    margin-bottom: 25px;
+                }
+
+                .resumen-grid div {
+                    background: #f9fafb;
+                    padding: 12px;
+                    border-radius: 10px;
+                    border: 1px solid #e5e7eb;
+                }
+
+                .resumen-grid span {
+                    display: block;
+                    color: #6b7280;
+                    font-size: 12px;
+                    margin-bottom: 5px;
+                }
+
+                .resumen-grid strong {
+                    font-size: 16px;
+                }
+
+                h3 {
+                    margin-top: 28px;
+                    margin-bottom: 10px;
+                    font-size: 17px;
+                    color: #111827;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 10px;
+                    font-size: 14px;
+                }
+
+                th {
+                    background: #f3f4f6;
+                    text-align: left;
+                    padding: 12px;
+                    color: #374151;
+                    border: 1px solid #e5e7eb;
+                }
+
+                td {
+                    padding: 12px;
+                    border: 1px solid #e5e7eb;
+                }
+
+                .footer {
+                    text-align: center;
+                    margin-top: 30px;
+                    font-size: 12px;
+                    color: #6b7280;
+                }
+
+                @media print {
+                    body {
+                        padding: 0;
+                    }
+
+                    .informe {
+                        border: none;
+                        border-radius: 0;
+                    }
+                }
+            </style>
+        </head>
+
+        <body>
+            <div class="informe">
+                <div class="titulo">
+                    <h1>{{ config.nombre_empresa|default:"INVENTA WEB" }}</h1>
+                    <p>Informe mensual de ventas</p>
+                </div>
+
+                ${contenido}
+
+                <div class="footer">
+                    Informe generado desde Inventa Web
+                </div>
+            </div>
+        </body>
+        </html>
+    `);
+
+    ventana.document.close();
+
+    ventana.onload = function () {
+        ventana.focus();
+        ventana.print();
+        ventana.close();
+    };
+}
+</script>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/informes.js' %}"></script>
+{% endblock %}

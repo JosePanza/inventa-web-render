@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="p-8 max-w-4xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-sm border p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">
+            Detalle de la Venta #{{ venta.id }}
+        </h2>
+
+        <div class="mb-6 text-sm text-gray-600 space-y-1">
+            <p><strong>Fecha:</strong> {{ venta.fecha }}</p>
+            <p><strong>Medio de pago:</strong> {{ venta.get_medio_pago_display }}</p>
+        </div>
+
+        <div class="space-y-4 mb-6">
+            {% for detalle in venta.detalles.all %}
+            <div class="flex justify-between border-b pb-3">
+                <div>
+                    <p class="font-semibold text-gray-800">{{ detalle.producto.nombre }}</p>
+                    <p class="text-sm text-gray-500">
+                        ${{ detalle.precio_unitario }} x {{ detalle.cantidad }}
+                    </p>
+                </div>
+                <p class="font-bold text-blue-600">
+                    ${{ detalle.subtotal }}
+                </p>
+            </div>
+            {% empty %}
+            <p class="text-gray-400">No hay detalles en esta venta.</p>
+            {% endfor %}
+        </div>
+
+        <div class="space-y-2 border-t pt-4">
+            <div class="flex justify-between text-gray-700">
+                <span>Subtotal</span>
+                <span>${{ venta.subtotal }}</span>
+            </div>
+
+            <div class="flex justify-between text-gray-700">
+                <span>IVA</span>
+                <span>${{ venta.iva }}</span>
+            </div>
+
+            <div class="flex justify-between text-2xl font-bold text-gray-900">
+                <span>Total</span>
+                <span>${{ venta.total }}</span>
+            </div>
+        </div>
+
+        <div class="mt-6 flex gap-3">
+            <a href="{% url 'ventas' %}"
+               class="px-4 py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-semibold">
+                Nueva venta
+            </a>
+
+            <a href="{% url 'dashboard' %}"
+               class="px-4 py-3 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold">
+                Volver al panel
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

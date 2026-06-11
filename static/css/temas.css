@@ -1,0 +1,183 @@
+[data-theme="claro"] {
+    --color-fondo: #f3f4f6;
+    --color-tarjeta: #ffffff;
+    --color-suave: #f9fafb;
+    --color-input: #f3f4f6;
+    --color-texto: #111827;
+    --color-muted: #6b7280;
+    --color-borde: #e5e7eb;
+    --color-principal: #2563eb;
+    --color-principal-hover: #1d4ed8;
+    --color-sidebar: #0f172a;
+}
+
+[data-theme="arena"] {
+    --color-fondo: #f5e6ca;
+    --color-tarjeta: #fff7ed;
+    --color-suave: #fed7aa;
+    --color-input: #ffedd5;
+    --color-texto: #431407;
+    --color-muted: #7c2d12;
+    --color-borde: #fdba74;
+    --color-principal: #b45309;
+    --color-principal-hover: #92400e;
+    --color-sidebar: #78350f;
+}
+
+[data-theme="azul_corporativo"] {
+    --color-fondo: #0f172a;
+    --color-tarjeta: #1e293b;
+    --color-suave: #334155;
+    --color-input: #334155;
+    --color-texto: #f8fafc;
+    --color-muted: #cbd5e1;
+    --color-borde: #475569;
+    --color-principal: #38bdf8;
+    --color-principal-hover: #0284c7;
+    --color-sidebar: #020617;
+}
+
+[data-theme="verde_bosque"] {
+    --color-fondo: #052e16;
+    --color-tarjeta: #14532d;
+    --color-suave: #166534;
+    --color-input: #166534;
+    --color-texto: #f0fdf4;
+    --color-muted: #bbf7d0;
+    --color-borde: #22c55e;
+    --color-principal: #22c55e;
+    --color-principal-hover: #16a34a;
+    --color-sidebar: #022c22;
+}
+
+[data-theme="oscuro"] {
+    --color-fondo: #111827;
+    --color-tarjeta: #1f2937;
+    --color-suave: #374151;
+    --color-input: #374151;
+    --color-texto: #f9fafb;
+    --color-muted: #d1d5db;
+    --color-borde: #4b5563;
+    --color-principal: #6366f1;
+    --color-principal-hover: #4f46e5;
+    --color-sidebar: #030712;
+}
+
+html,
+body {
+    min-height: 100%;
+    background-color: var(--color-fondo) !important;
+    color: var(--color-texto) !important;
+}
+
+.bg-white {
+    background-color: var(--color-tarjeta) !important;
+}
+
+.bg-gray-50 {
+    background-color: var(--color-suave) !important;
+}
+
+.bg-gray-100 {
+    background-color: var(--color-input) !important;
+}
+
+.text-gray-800,
+.text-gray-900,
+.text-slate-800,
+.text-slate-900 {
+    color: var(--color-texto) !important;
+}
+
+.text-gray-400,
+.text-gray-500,
+.text-gray-600,
+.text-gray-700,
+.text-slate-500 {
+    color: var(--color-muted) !important;
+}
+
+.border,
+.border-t,
+.border-b,
+.border-l,
+.border-r,
+.border-gray-100,
+.border-gray-200,
+.border-gray-300 {
+    border-color: var(--color-borde) !important;
+}
+
+.bg-blue-600 {
+    background-color: var(--color-principal) !important;
+}
+
+.hover\:bg-blue-700:hover {
+    background-color: var(--color-principal-hover) !important;
+}
+
+input,
+select,
+textarea {
+    background-color: var(--color-input) !important;
+    color: var(--color-texto) !important;
+    border-color: var(--color-borde) !important;
+}
+
+.sidebar {
+    background-color: var(--color-sidebar) !important;
+}
+
+.link-activo {
+    background-color: var(--color-principal) !important;
+    color: white !important;
+}
+
+.link-menu:hover {
+    background-color: var(--color-principal-hover) !important;
+}
+.theme-card {
+    background-color: var(--color-tarjeta) !important;
+    color: var(--color-texto) !important;
+    border-color: var(--color-borde) !important;
+}
+
+.theme-title {
+    color: var(--color-texto) !important;
+}
+
+.theme-label,
+.theme-muted {
+    color: var(--color-muted) !important;
+}
+
+.theme-input {
+    background-color: var(--color-input) !important;
+    color: var(--color-texto) !important;
+    border-color: var(--color-borde) !important;
+}
+
+.theme-input::placeholder {
+    color: var(--color-muted) !important;
+}
+
+.theme-btn-primary {
+    background-color: var(--color-principal) !important;
+    color: white !important;
+    font-weight: 600;
+}
+
+.theme-btn-primary:hover {
+    background-color: var(--color-principal-hover) !important;
+}
+
+.theme-btn-secondary {
+    background-color: var(--color-suave) !important;
+    color: var(--color-texto) !important;
+    border-color: var(--color-borde) !important;
+    font-weight: 600;
+}
+
+.theme-btn-secondary:hover {
+    filter: brightness(0.95);
+}

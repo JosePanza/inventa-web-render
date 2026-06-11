@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="p-8 bg-gray-100 min-h-screen">
+
+    <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- 🧾 RESUMEN DE LA VENTA -->
+        <div class="bg-white rounded-2xl shadow-sm border p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6">
+                Resumen de la Venta
+            </h2>
+
+            <div class="space-y-4 mb-6">
+                {% for item in venta_actual %}
+                <div class="flex justify-between items-center border-b pb-3">
+                    <div>
+                        <p class="font-semibold text-gray-800">{{ item.nombre }}</p>
+                        <p class="text-sm text-gray-500">
+                            ${{ item.precio_venta }} x {{ item.cantidad }}
+                        </p>
+                    </div>
+                    <p class="font-bold text-blue-600">
+                        ${{ item.subtotal }}
+                    </p>
+                </div>
+                {% empty %}
+                <p class="text-gray-400">No hay productos en la venta.</p>
+                {% endfor %}
+            </div>
+
+            <div class="space-y-2 border-t pt-4">
+                <div class="flex justify-between text-gray-700">
+                    <span>Subtotal</span>
+                    <span>${{ subtotal }}</span>
+                </div>
+
+                <div class="flex justify-between text-gray-700">
+                    <span>IVA (19%)</span>
+                    <span>${{ iva }}</span>
+                </div>
+
+                <div class="flex justify-between text-2xl font-bold text-gray-900">
+                    <span>Total</span>
+                    <span>${{ total }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 💳 MEDIO DE PAGO -->
+        <div class="bg-white rounded-2xl shadow-sm border p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6">
+                Seleccionar Medio de Pago
+            </h2>
+
+            <form method="POST" action="{% url 'finalizar_venta' %}">
+                {% csrf_token %}
+
+                <div class="space-y-4 mb-6">
+
+                    <!-- OPCIONES -->
+                    <label class="flex items-center gap-3 border rounded-xl p-4 cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="medio_pago" value="efectivo" class="accent-green-600">
+                        <span class="font-semibold text-gray-700">💵 Efectivo</span>
+                    </label>
+
+                    <label class="flex items-center gap-3 border rounded-xl p-4 cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="medio_pago" value="debito" class="accent-green-600">
+                        <span class="font-semibold text-gray-700">💳 Tarjeta Débito</span>
+                    </label>
+
+                    <label class="flex items-center gap-3 border rounded-xl p-4 cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="medio_pago" value="credito" class="accent-green-600">
+                        <span class="font-semibold text-gray-700">💳 Tarjeta Crédito</span>
+                    </label>
+
+                    <label class="flex items-center gap-3 border rounded-xl p-4 cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="medio_pago" value="transferencia" class="accent-green-600">
+                        <span class="font-semibold text-gray-700">🏦 Transferencia</span>
+                    </label>
+
+                </div>
+
+                <!-- BOTONES -->
+                <div class="flex gap-3">
+                    <a href="{% url 'ventas' %}"
+                       class="flex-1 text-center border border-gray-300 text-gray-700 py-3 rounded-xl hover:bg-gray-100 font-semibold">
+                        Volver
+                    </a>
+
+                    <button type="submit"
+                            class="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">
+                        Confirmar pago
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
