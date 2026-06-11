@@ -30,3 +30,51 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* ============================= */
+/* RESPONSIVE GENERAL */
+/* ============================= */
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+main {
+    min-width: 0;
+}
+
+/* Evita que tablas grandes rompan la pantalla */
+.table-container,
+.tabla-contenedor,
+.overflow-table {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Celulares */
+@media (max-width: 768px) {
+    main {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    section,
+    .card,
+    .contenedor,
+    .container {
+        max-width: 100%;
+    }
+
+    table {
+        min-width: 600px;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+        max-width: 100%;
+    }
+}
