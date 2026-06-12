@@ -91,10 +91,10 @@ def registro_view(request):
                         ),
                         from_email=settings.DEFAULT_FROM_EMAIL,
                         recipient_list=[correo],
-                        fail_silently=True,
+                        fail_silently=False,
                     )
                 except Exception as e:
-                    print("Error enviando correo:", e)
+                    print("Error enviando correo:", repr(e))
 
             messages.success(request, "¡Registro exitoso! Ya puedes iniciar sesión.")
             return redirect('login')
