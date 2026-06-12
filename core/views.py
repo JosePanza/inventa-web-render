@@ -13,6 +13,7 @@ import requests
 from django.core.files.base import ContentFile
 import json
 from django.http import JsonResponse
+from django.views.decorators.cache import never_cache
 
 
 
@@ -28,6 +29,16 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
+
+            recordar = request.POST.get('remember_me') == 'true'
+
+            if recordar:
+                # Sesión larga: 14 días
+                request.session.set_expiry(1209600)
+            else:
+                # Sesión corta: 15 minutos sin actividad
+                request.session.set_expiry(900)
+
             return redirect('dashboard')
         else:
             messages.error(request, "Correo o contraseña incorrectos.")
@@ -70,6 +81,7 @@ def registro_view(request):
     return render(request, 'auth/registro.html')
 
 @login_required
+@never_cache
 def dashboard_view(request):
     productos = Producto.objects.filter(usuario=request.user)
 
@@ -251,6 +263,7 @@ def dashboard_view(request):
     })
 
 @login_required
+@never_cache
 def inventario_view(request):
     productos = Producto.objects.filter(usuario=request.user)
     proveedores = Proveedor.objects.all()
@@ -301,6 +314,7 @@ def logout_view(request):
 
 
 @login_required
+@never_cache
 def crear_producto(request):
     config, _ = ConfiguracionSistema.objects.get_or_create(id=1)
     proveedores = Proveedor.objects.all()
@@ -345,6 +359,7 @@ def crear_producto(request):
 
 
 @login_required
+@never_cache
 def editar_producto(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id, usuario=request.user)
 
@@ -367,6 +382,7 @@ def editar_producto(request, producto_id):
 
 
 @login_required
+@never_cache
 def eliminar_producto(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id, usuario=request.user)
 
@@ -376,6 +392,7 @@ def eliminar_producto(request, producto_id):
     return redirect('inventario')
 
 @login_required
+@never_cache
 def guardar_config_stock(request):
     if request.method == 'POST':
         limite = request.POST.get('limite_stock')
@@ -390,6 +407,7 @@ def guardar_config_stock(request):
     return redirect('inventario')
 
 @login_required
+@never_cache
 def ventas_view(request):
     config, _ = ConfiguracionSistema.objects.get_or_create(id=1)
 
@@ -457,6 +475,7 @@ def ventas_view(request):
 
 
 @login_required
+@never_cache
 def agregar_al_carrito(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id, usuario=request.user)
 
@@ -502,6 +521,7 @@ def quitar_del_carrito(request, producto_id):
 
 
 @login_required
+@never_cache
 def finalizar_venta(request):
     if request.method != 'POST':
         return redirect('checkout_ventas')
@@ -594,6 +614,7 @@ def finalizar_venta(request):
     return redirect('detalle_venta', venta_id=venta.id)
 
 @login_required
+@never_cache
 def checkout_ventas(request):
     config, _ = ConfiguracionSistema.objects.get_or_create(id=1)
     carrito = request.session.get('carrito', {})
@@ -647,6 +668,7 @@ def checkout_ventas(request):
     })
     
 @login_required
+@never_cache
 def detalle_venta(request, venta_id):
     config, _ = ConfiguracionSistema.objects.get_or_create(id=1)
     venta = get_object_or_404(Venta, id=venta_id)
@@ -657,6 +679,7 @@ def detalle_venta(request, venta_id):
     })
     
 @login_required
+@never_cache
 def editar_perfil(request):
     usuario = request.user
 
@@ -703,6 +726,7 @@ def editar_perfil(request):
     })
     
 @login_required
+@never_cache
 def admin_panel(request):
     if not request.user.is_staff:
         return redirect('dashboard')
@@ -772,6 +796,7 @@ def admin_panel(request):
     })
     
 @login_required
+@never_cache
 def gestion_usuarios(request):
     usuarios = User.objects.all().order_by('id')
 
@@ -780,6 +805,7 @@ def gestion_usuarios(request):
     })
     
 @login_required
+@never_cache
 def editar_usuario_admin(request, user_id):
     usuario = get_object_or_404(User, id=user_id)
 
@@ -800,6 +826,7 @@ def editar_usuario_admin(request, user_id):
     })
     
 @login_required
+@never_cache
 def actualizar_cantidad_carrito(request, producto_id, accion):
     carrito = request.session.get('carrito', {})
     producto = get_object_or_404(Producto, id=producto_id, usuario=request.user)
@@ -822,6 +849,7 @@ def actualizar_cantidad_carrito(request, producto_id, accion):
     return redirect('ventas')
 
 @login_required
+@never_cache
 def agregar_producto_peso(request, producto_id):
     if request.method != 'POST':
         return redirect('ventas')
@@ -848,6 +876,7 @@ def agregar_producto_peso(request, producto_id):
     return redirect('ventas')
 
 @login_required
+@never_cache
 def cambiar_cantidad_carrito(request, producto_id):
     if request.method != 'POST':
         return redirect('ventas')
@@ -879,6 +908,7 @@ def cambiar_cantidad_carrito(request, producto_id):
 
 
 @login_required
+@never_cache
 def proveedores(request):
     # Definimos las URLs independientes de cada una de las APIs de MockAPI
     api_urls = {
@@ -921,6 +951,7 @@ def proveedores(request):
 
 
 @login_required
+@never_cache
 def recepcion_inventario_view(request):
     if request.method == 'POST':
         try:
@@ -970,6 +1001,7 @@ def recepcion_inventario_view(request):
     return render(request, 'recepcion_inventario.html')
 
 @login_required
+@never_cache
 def informes_view(request):
     config, _ = ConfiguracionSistema.objects.get_or_create(id=1)
 

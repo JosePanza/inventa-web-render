@@ -12,8 +12,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 # Sesión
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-SESSION_COOKIE_AGE = 1209600
+SESSION_COOKIE_AGE = 900  # 15 minutos
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Seguridad
 SECRET_KEY = os.environ.get("SECRET_KEY", "clave-local-solo-desarrollo")
