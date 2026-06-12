@@ -14,8 +14,7 @@ from django.core.files.base import ContentFile
 import json
 from django.http import JsonResponse
 from django.views.decorators.cache import never_cache
-from django.core.mail import send_mail
-from django.conf import settings
+
 
 
 
@@ -73,28 +72,6 @@ def registro_view(request):
                 last_name=last_name
             )
             nuevo_usuario.save()
-
-            # Enviar correo de bienvenida sin romper el registro si falla
-            if settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD:
-                try:
-                    send_mail(
-                        subject="Bienvenido a INVENTA WEB",
-                        message=(
-                            f"Hola {first_name},\n\n"
-                            "Gracias por registrarte en INVENTA WEB.\n\n"
-                            f"Tu usuario es: {correo}\n"
-                            "Puedes iniciar sesión desde:\n"
-                            "https://inventa-web.onrender.com/login/\n\n"
-                            "Por seguridad, no enviamos contraseñas por correo.\n\n"
-                            "Saludos,\n"
-                            "Equipo INVENTA WEB"
-                        ),
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[correo],
-                        fail_silently=False,
-                    )
-                except Exception as e:
-                    print("Error enviando correo:", repr(e))
 
             messages.success(request, "¡Registro exitoso! Ya puedes iniciar sesión.")
             return redirect('login')
