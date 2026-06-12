@@ -55,14 +55,41 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
                     <input type="email" name="email" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-                        <input type="password" name="password" id="password" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
+
+                        <div class="relative">
+                            <input type="password"
+                                name="password"
+                                id="password"
+                                required
+                                class="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
+
+                            <button type="button"
+                                    onclick="togglePasswordVisibility('password', 'eye_password')"
+                                    class="absolute inset-y-0 right-0 px-4 flex items-center text-gray-500 hover:text-gray-700">
+                                <span id="eye_password">👁️</span>
+                            </button>
+                        </div>
                     </div>
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar</label>
-                        <input type="password" name="confirm_password" id="confirm_password" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
+
+                        <div class="relative">
+                            <input type="password"
+                                name="confirm_password"
+                                id="confirm_password"
+                                required
+                                class="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
+
+                            <button type="button"
+                                    onclick="togglePasswordVisibility('confirm_password', 'eye_confirm_password')"
+                                    class="absolute inset-y-0 right-0 px-4 flex items-center text-gray-500 hover:text-gray-700">
+                                <span id="eye_confirm_password">👁️</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-lg font-bold hover:bg-slate-800 transition shadow-lg mt-4">
@@ -77,6 +104,25 @@
         </div>
     </div>
 
-    <script src="{% static 'js/auth.js' %}"></script>
+<script src="{% static 'js/auth.js' %}"></script>
+    
+<script>
+    function togglePasswordVisibility(inputId, eyeId) {
+        const input = document.getElementById(inputId);
+        const eye = document.getElementById(eyeId);
+
+        if (!input || !eye) {
+            return;
+        }
+
+        if (input.type === "password") {
+            input.type = "text";
+            eye.textContent = "🙈";
+        } else {
+            input.type = "password";
+            eye.textContent = "👁️";
+        }
+    }
+</script>
 </body>
 </html>
